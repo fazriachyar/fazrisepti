@@ -10,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Chosen Palette: Sweet Pink Romance -->
-    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are visually blurred and functionally disabled based on proximity to the current date, providing a custom message upon interaction and a live countdown. Location and Guestbook sections are also blurred and disabled until a specific future date. A music play/pause button is added for background audio control. -->
-    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed with dynamic blur levels (heavy blur for >30 days, light blur for <=30 days), display a custom message modal with a countdown when clicked, and show the countdown directly on the timeline card. Our Story in Numbers -> Goal: Summarize relationship statistics -> Presentation: Simple text blocks with bold numbers. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location & Guestbook -> Goal: Provide event venue details and collect messages -> Presentation: Text blocks and form. Interaction: Blurred and disabled until a specific date (Feb 26, 2026), showing a custom message on click. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Music Player -> Goal: Provide background ambiance -> Presentation: Fixed button with play/pause icon. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The dynamic blur on disabled dates and sections with countdown adds a playful anticipation and clearer visual feedback based on proximity. The music button enhances the emotional experience. -->
+    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. A new "Inspirational Quotes" section replaces the "Our Story in Numbers" section, displaying dynamically changing quotes. Sections for "Gallery," "Location," and "Guestbook" enrich the content. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are visually blurred and functionally disabled based on proximity to the current date, providing a custom message upon interaction and a live countdown. Location and Guestbook sections are also blurred and disabled until a specific future date. A music play/pause button is added for background audio control. -->
+    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed with dynamic blur levels (heavy blur for >30 days, light blur for <=30 days), and display a *distinct* "Coming Soon" modal with a countdown. Inspirational Quotes -> Goal: Provide engaging, dynamic content relevant to love/relationships -> Presentation: Text quotes changing automatically with soft fade animations. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location & Guestbook -> Goal: Provide event venue details and collect messages -> Presentation: Text blocks and form. Interaction: Blurred and disabled until a specific date (Feb 26, 2026), showing a custom message on click. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Music Player -> Goal: Provide background ambiance -> Presentation: Fixed button with play/pause icon. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The dynamic blur on disabled dates and sections with countdown adds a playful anticipation and clearer visual feedback based on proximity. The distinct "Coming Soon" modal improves user clarity. The music button and dynamic quotes enhance the emotional and interactive experience. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
     <style>
@@ -268,6 +268,34 @@
             to { opacity: 1; }
         }
 
+        /* Specific style for "Coming Soon" modal */
+        .modal-content-custom.is-coming-soon .modal-card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px; /* Ensure enough space for text */
+        }
+
+        .modal-content-custom.is-coming-soon #modalDate,
+        .modal-content-custom.is-coming-soon #modalImage {
+            display: none !important; /* Hide these elements */
+        }
+
+        .modal-content-custom.is-coming-soon #modalTitle {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--brand-pink-dark);
+        }
+
+        .modal-content-custom.is-coming-soon #modalDescription {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--brand-text-dark);
+            text-align: center;
+        }
+
+
         /* Sticky Navbar */
         .sticky-navbar {
             position: fixed;
@@ -299,6 +327,7 @@
             font-size: 1.5rem;
             margin-bottom: 0;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            cursor: pointer; /* Add cursor pointer to indicate clickability */
         }
 
         /* Gallery Section */
@@ -400,12 +429,77 @@
             padding: 20px;
             pointer-events: auto; /* Allow click on overlay */
         }
+
+        /* Quotes Section */
+        .quotes-display {
+            min-height: 150px; /* Ensure enough space for quotes */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--brand-text-dark);
+            padding: 1rem;
+            overflow: hidden; /* Hide overflowing text during animation */
+            background-color: var(--brand-background); /* Ensure background for quotes */
+            box-shadow: none; /* Remove box shadow if not desired */
+        }
+
+        .quotes-display .quote-text {
+            opacity: 0;
+            animation: fadeQuoteIn 1s ease-in-out forwards;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .quotes-display .quote-author {
+            opacity: 0;
+            animation: fadeQuoteIn 1s ease-in-out forwards;
+            animation-delay: 0.5s; /* Delay author fade-in slightly */
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--brand-pink-dark);
+        }
+
+        @keyframes fadeQuoteIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeQuoteOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* Heart animation for navbar click */
+        .falling-heart {
+            position: fixed; /* Changed from absolute to fixed */
+            top: -20px; /* Start above the viewport */
+            font-size: 2rem;
+            opacity: 0;
+            animation: fallAndFade 3s linear forwards;
+            pointer-events: none; /* Do not block clicks */
+            z-index: 9999; /* Ensure hearts are on top */
+        }
+
+        @keyframes fallAndFade {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) scale(0.5); /* Fall to bottom, shrink slightly */
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
 
     <nav class="sticky-navbar" id="stickyNavbar">
-        <p class="title">F 💖 S</p>
+        <p class="title" id="stickyNavbarTitle">F 💖 S</p>
     </nav>
 
     <button class="music-button" id="musicToggleButton" aria-label="Putar atau Jeda Musik">
@@ -427,13 +521,13 @@
         <div class="hero-body">
             <div class="container has-text-centered">
                 <p class="subtitle is-size-4">
-                    Kisah Cinta
+                    Perjalanan Cinta
                 </p>
                 <p class="title is-size-1">
                     Fazri & Septi
                 </p>
                 <p class="subtitle is-size-4">
-                    Dari Awal Hingga Selamanya
+                    Merajut Kisah, Mengukir Janji
                 </p>
             </div>
         </div>
@@ -450,32 +544,10 @@
 
     <section class="section has-background-light">
         <div class="container">
-            <h2 class="section-title">Kisah Kami dalam Angka</h2>
-            <div class="columns is-multiline is-centered has-text-centered">
-                <div class="column is-4-tablet is-3-desktop">
-                    <div class="box has-background-white-ter py-5">
-                        <p class="title is-2 has-text-danger-dark">1000+</p>
-                        <p class="subtitle is-6 has-text-grey-darker">Hari Bersama</p>
-                    </div>
-                </div>
-                <div class="column is-4-tablet is-3-desktop">
-                    <div class="box has-background-white-ter py-5">
-                        <p class="title is-2 has-text-danger-dark">50+</p>
-                        <p class="subtitle is-6 has-text-grey-darker">Kencan Tak Terlupakan</p>
-                    </div>
-                </div>
-                <div class="column is-4-tablet is-3-desktop">
-                    <div class="box has-background-white-ter py-5">
-                        <p class="title is-2 has-text-danger-dark">3</p>
-                        <p class="subtitle is-6 has-text-grey-darker">Kota yang Dikunjungi</p>
-                    </div>
-                </div>
-                <div class="column is-4-tablet is-3-desktop">
-                    <div class="box has-background-white-ter py-5">
-                        <p class="title is-2 has-text-danger-dark">∞</p>
-                        <p class="subtitle is-6 has-text-grey-darker">Cinta yang Tumbuh</p>
-                    </div>
-                </div>
+            <!-- Removed h2.section-title for "Inspirasi Cinta" -->
+            <div class="box quotes-display">
+                <p class="quote-text" id="quoteText"></p>
+                <p class="quote-author" id="quoteAuthor"></p>
             </div>
         </div>
     </section>
@@ -596,7 +668,7 @@
                 date: '8 Juni 2025',
                 fullDate: new Date('2025-06-08'),
                 title: 'Hari Pertama Kita Seharian Bersama',
-                icon: '😊',
+                icon: '�',
                 shortDesc: 'Momen tak terlupakan seharian penuh.',
                 longDesc: 'Setelah hari jadian kami, 8 Juni 2025 menjadi hari pertama kami menghabiskan waktu seharian penuh bersama, menciptakan kenangan manis yang tak terlupakan.',
                 image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Seharian+Bersama'
@@ -618,7 +690,7 @@
                 title: 'Momen Lamaran',
                 icon: '💍',
                 shortDesc: 'Janji untuk selamanya.',
-                longDesc: 'Dengan hati berdebar, ia berlutut dan menanyakan pertanyaan yang mengubah segalanya. "Maukah kau menikah denganku?". Dan dengan air mata bahagia, jawabanku adalah "Ya!".',
+                longDesc: 'Dengan hati berdebar, ia berlutut dan menanyakan pertanyaan yang mengubah segalanya. "Maukah kau menikahiku?". Dan dengan air mata bahagia, jawabanku adalah "Ya!".',
                 image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Lamaran'
             },
             {
@@ -646,12 +718,47 @@
                 date: '20 September 2026',
                 fullDate: new Date('2026-09-20'),
                 title: 'Hari Pernikahan Kami',
-                icon: '👰�',
+                icon: '👰🤵',
                 shortDesc: 'Awal dari kehidupan baru.',
                 longDesc: 'Akhirnya, hari yang kami nantikan tiba. Dengan restu dari orang tua dan doa dari para sahabat, kami mengikat janji suci pernikahan. Ini adalah awal dari babak baru dalam hidup kami.',
                 image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Pernikahan'
             }
         ];
+
+        const quotesData = [
+            { text: "Cinta itu bukan tentang berapa lama kamu mengenal seseorang, tapi tentang bagaimana seseorang membuatmu tersenyum.", author: "Anonim" },
+            { text: "Bersamamu, setiap hari adalah petualangan baru.", author: "Fazri" },
+            { text: "Cinta adalah persahabatan yang terbakar.", author: "Jeremy Taylor" },
+            { text: "Kamu adalah jawaban dari setiap doa yang pernah kupanjatkan.", author: "Septi" },
+            { text: "Hati ini diciptakan untuk dicintai, dan kamu adalah cintaku.", author: "Anonim" }
+        ];
+
+        let currentQuoteIndex = 0;
+        const quoteTextElement = document.getElementById('quoteText');
+        const quoteAuthorElement = document.getElementById('quoteAuthor');
+
+        function displayQuote() {
+            const currentQuote = quotesData[currentQuoteIndex];
+            
+            // Apply fade-out animation first
+            quoteTextElement.style.animation = 'none';
+            quoteAuthorElement.style.animation = 'none';
+            quoteTextElement.style.opacity = 0;
+            quoteAuthorElement.style.opacity = 0;
+
+            setTimeout(() => {
+                quoteTextElement.textContent = `"${currentQuote.text}"`;
+                quoteAuthorElement.textContent = `- ${currentQuote.author}`;
+
+                // Apply fade-in animation
+                quoteTextElement.style.animation = 'fadeQuoteIn 1s ease-in-out forwards';
+                quoteAuthorElement.style.animation = 'fadeQuoteIn 1s ease-in-out forwards';
+                quoteAuthorElement.style.animationDelay = '0.5s'; // Delay author fade-in
+
+                currentQuoteIndex = (currentQuoteIndex + 1) % quotesData.length;
+            }, 500); // Half of fade-out duration for smooth transition
+        }
+
 
         document.addEventListener('DOMContentLoaded', () => {
             const timelineEventsContainer = document.getElementById('timeline-events');
@@ -663,6 +770,7 @@
             const modalCloseButton = document.getElementById('modalCloseButton');
             const modalBackground = document.querySelector('.modal-background');
             const stickyNavbar = document.getElementById('stickyNavbar');
+            const stickyNavbarTitle = document.getElementById('stickyNavbarTitle'); // Get the title element
             const heroSection = document.querySelector('.hero');
             const backgroundMusic = document.getElementById('backgroundMusic');
             const musicToggleButton = document.getElementById('musicToggleButton');
@@ -674,11 +782,10 @@
             const bukuTamuSection = document.getElementById('bukuTamuSection');
             const bukuTamuOverlay = document.getElementById('bukuTamuOverlay');
 
-            const unlockDate = new Date('2026-02-26'); // Tanggal 26 Februari 2026
+            const unlockDate = new Date('2026-02-26');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Function to handle blurring sections
             const applySectionBlur = () => {
                 if (today.getTime() < unlockDate.getTime()) {
                     lokasiAcaraSection.classList.add('section-blurred');
@@ -693,24 +800,22 @@
                 }
             };
 
-            // Initial blur application
             applySectionBlur();
 
-            // Add click listeners to overlays for custom messages
             lokasiAcaraOverlay.addEventListener('click', () => {
                 modalTitle.textContent = 'Belum Saatnya!';
-                modalDate.textContent = '';
+                modalDate.style.display = 'none';
                 modalDescription.textContent = 'Informasi lokasi akan tersedia setelah 26 Februari 2026.';
                 modalImage.style.display = 'none';
-                eventModal.classList.add('is-active');
+                eventModal.classList.add('is-active', 'is-coming-soon');
             });
 
             bukuTamuOverlay.addEventListener('click', () => {
                 modalTitle.textContent = 'Belum Saatnya!';
-                modalDate.textContent = '';
+                modalDate.style.display = 'none';
                 modalDescription.textContent = 'Buku Tamu akan dibuka setelah 26 Februari 2026.';
                 modalImage.style.display = 'none';
-                eventModal.classList.add('is-active');
+                eventModal.classList.add('is-active', 'is-coming-soon');
             });
 
 
@@ -755,13 +860,17 @@
                 timelineEventsContainer.appendChild(timelineContainer);
 
                 timelineContainer.addEventListener('click', () => {
+                    eventModal.classList.remove('is-coming-soon');
+                    modalDate.style.display = 'block';
+
                     if (isFutureEvent) {
                         const diffTime = event.fullDate.getTime() - today.getTime();
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        modalTitle.textContent = 'Belum Saatnya!';
-                        modalDate.textContent = '';
-                        modalDescription.textContent = `nanti yaaa kita seperti ini... Masih ${diffDays} Hari lagi.`;
+                        modalTitle.textContent = 'Coming Soon!';
+                        modalDate.style.display = 'none';
+                        modalDescription.textContent = `Masih ${diffDays} Hari lagi.`;
                         modalImage.style.display = 'none';
+                        eventModal.classList.add('is-coming-soon');
                     } else {
                         modalTitle.textContent = event.title;
                         modalDate.textContent = event.date;
@@ -775,8 +884,9 @@
 
             document.querySelectorAll('.gallery-item img').forEach(img => {
                 img.addEventListener('click', (e) => {
+                    eventModal.classList.remove('is-coming-soon');
+                    modalDate.style.display = 'none';
                     modalTitle.textContent = e.target.dataset.imageTitle || 'Momen Indah';
-                    modalDate.textContent = '';
                     modalDescription.textContent = '';
                     modalImage.src = e.target.dataset.imageFull || e.target.src;
                     modalImage.style.display = 'block';
@@ -830,8 +940,40 @@
                     alert('Terima kasih atas pesan dan doa Anda!'); 
                 });
             }
+
+            // Initialize and start quotes rotation
+            displayQuote();
+            setInterval(displayQuote, 10000); // Change quote every 10 seconds
+
+            // Heart rain animation listener on the sticky navbar title
+            stickyNavbarTitle.addEventListener('click', () => {
+                console.log('Navbar title clicked! Raining hearts...'); // Log for debugging
+                const numberOfHearts = 20; // Jumlah hati yang akan jatuh
+                const container = document.body; // Jatuhkan hati di seluruh body
+
+                for (let i = 0; i < numberOfHearts; i++) {
+                    const heart = document.createElement('span');
+                    heart.classList.add('falling-heart');
+                    heart.textContent = '💖'; // Emoji hati
+                    
+                    // Posisi horizontal acak
+                    heart.style.left = `${Math.random() * 100}vw`;
+                    // Delay acak agar hati tidak jatuh bersamaan
+                    heart.style.animationDelay = `${Math.random() * 1.5}s`; 
+                    // Durasi animasi acak agar terlihat lebih natural
+                    heart.style.animationDuration = `${2 + Math.random() * 2}s`; 
+
+                    container.appendChild(heart);
+
+                    // Hapus hati setelah animasi selesai
+                    heart.addEventListener('animationend', () => {
+                        heart.remove();
+                    });
+                }
+            });
         });
     </script>
 
 </body>
 </html>
+�
