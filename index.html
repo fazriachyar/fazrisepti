@@ -10,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Chosen Palette: Sweet Pink Romance -->
-    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are disabled visually and functionally, providing a custom message upon interaction and a live countdown. -->
-    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed, display a custom message modal with a countdown when clicked, and show the countdown directly on the timeline card. Our Story in Numbers -> Goal: Summarize relationship statistics -> Presentation: Simple text blocks with bold numbers. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location -> Goal: Provide event venue details -> Presentation: Text block. Guestbook -> Goal: Allow user interaction -> Presentation: Simple form. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The disabled dates with countdown add a playful anticipation and clearer visual feedback. -->
+    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are disabled visually and functionally, providing a custom message upon interaction and a live countdown. A music play/pause button is added for background audio control. -->
+    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed, display a custom message modal with a countdown when clicked, and show the countdown directly on the timeline card. Our Story in Numbers -> Goal: Summarize relationship statistics -> Presentation: Simple text blocks with bold numbers. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location -> Goal: Provide event venue details -> Presentation: Text block. Guestbook -> Goal: Allow user interaction -> Presentation: Simple form. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Music Player -> Goal: Provide background ambiance -> Presentation: Fixed button with play/pause icon. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The disabled dates with countdown add a playful anticipation and clearer visual feedback. The music button enhances the emotional experience. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
     <style>
@@ -125,7 +125,7 @@
         }
 
         .timeline-container.is-disabled .content-box {
-            background-color: rgba(240, 240, 240, 0.9); /* Darker grey transparent */
+            background-color: rgba(240, 240, 240, 0.95); /* Darker grey transparent */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transform: none; /* No hover effect */
             opacity: 0.8; /* Slightly more opaque */
@@ -311,6 +311,40 @@
         .guestbook-form .field:not(:last-child) {
             margin-bottom: 1rem;
         }
+
+        /* Music Button */
+        .music-button {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--brand-pink-dark);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem; /* Adjust font size for icon */
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            padding-left: 3px; /* Adjust for triangle alignment */
+        }
+
+        .music-button:hover {
+            background-color: #FF4081; /* Slightly darker pink on hover */
+            transform: scale(1.05);
+        }
+
+        .music-button svg {
+            fill: currentColor; /* Use button's text color for SVG */
+            width: 1em; /* Make SVG size relative to font-size */
+            height: 1em;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -318,6 +352,21 @@
     <nav class="sticky-navbar" id="stickyNavbar">
         <p class="title">F 💖 S</p>
     </nav>
+
+    <button class="music-button" id="musicToggleButton" aria-label="Putar atau Jeda Musik">
+        <svg id="playIcon" viewBox="0 0 24 24" fill="white" style="display: block;">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+        <svg id="pauseIcon" viewBox="0 0 24 24" fill="white" style="display: none;">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+    </button>
+    <audio id="backgroundMusic" loop autoplay>
+        <!-- Ganti URL ini dengan URL file MP3 Anda -->
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        <!-- Anda bisa mengganti URL di atas dengan URL MP3 Anda sendiri. -->
+        Your browser does not support the audio element.
+    </audio>
 
     <section class="hero is-primary is-medium">
         <div class="hero-body">
@@ -554,6 +603,10 @@
             const modalBackground = document.querySelector('.modal-background');
             const stickyNavbar = document.getElementById('stickyNavbar');
             const heroSection = document.querySelector('.hero');
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            const musicToggleButton = document.getElementById('musicToggleButton');
+            const playIcon = document.getElementById('playIcon');
+            const pauseIcon = document.getElementById('pauseIcon');
 
             // Get current date, set to start of day for comparison
             const today = new Date();
@@ -566,13 +619,13 @@
                 timelineContainer.dataset.eventId = event.id;
 
                 const isFutureEvent = event.fullDate.getTime() > today.getTime();
-                let countdownText = '';
+                let countdownHtml = '';
 
                 if (isFutureEvent) {
                     timelineContainer.classList.add('is-disabled');
                     const diffTime = Math.abs(event.fullDate.getTime() - today.getTime());
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    countdownText = `<p class="countdown-text">Masih ${diffDays} Hari lagi</p>`;
+                    countdownHtml = `<p class="countdown-text">Masih ${diffDays} Hari lagi</p>`;
                 }
 
                 timelineContainer.innerHTML = `
@@ -585,7 +638,7 @@
                                 <h3 class="title is-4">${event.title}</h3>
                                 <p class="subtitle is-6">${event.date}</p>
                                 <p>${event.shortDesc}</p>
-                                ${countdownText}
+                                ${countdownHtml}
                             </div>
                         </div>
                     </div>
@@ -639,6 +692,29 @@
                 } else {
                     stickyNavbar.classList.remove('is-visible');
                 }
+            });
+
+            // Music Play/Pause Toggle
+            musicToggleButton.addEventListener('click', () => {
+                if (backgroundMusic.paused) {
+                    backgroundMusic.play();
+                    playIcon.style.display = 'none';
+                    pauseIcon.style.display = 'block';
+                } else {
+                    backgroundMusic.pause();
+                    playIcon.style.display = 'block';
+                    pauseIcon.style.display = 'none';
+                }
+            });
+
+            // Attempt to autoplay and handle potential browser restrictions
+            backgroundMusic.play().then(() => {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            }).catch(error => {
+                console.log("Autoplay failed, user interaction required:", error);
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
             });
 
             // Guestbook button (no actual functionality)
