@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Kisah Cinta | Fazri & Septi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Sweet Pink Romance -->
+    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are disabled visually and functionally, providing a custom message upon interaction and a live countdown. -->
+    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed, display a custom message modal with a countdown when clicked, and show the countdown directly on the timeline card. Our Story in Numbers -> Goal: Summarize relationship statistics -> Presentation: Simple text blocks with bold numbers. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location -> Goal: Provide event venue details -> Presentation: Text block. Guestbook -> Goal: Allow user interaction -> Presentation: Simple form. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The disabled dates with countdown add a playful anticipation and clearer visual feedback. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        :root {
+            --brand-pink-light: #FFF0F5;
+            --brand-pink: #FFB6C1;
+            --brand-pink-dark: #FF69B4;
+            --brand-text-dark: #5E3A3A;
+            --brand-text-light: #8D5C5C;
+            --brand-background: #FFF9F9;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--brand-background);
+            color: var(--brand-text-dark);
+        }
+
+        .hero.is-primary {
+            background: linear-gradient(135deg, var(--brand-pink), var(--brand-pink-dark));
+        }
+
+        .hero .title, .hero .subtitle {
+            font-family: 'Pacifico', cursive;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-family: 'Pacifico', cursive;
+            color: var(--brand-pink-dark);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 3px;
+            background-color: var(--brand-pink);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1.5px;
+            border-radius: 3px;
+        }
+
+        .timeline-container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            cursor: pointer;
+        }
+
+        .timeline-container.left {
+            left: 0;
+        }
+
+        .timeline-container.right {
+            left: 50%;
+        }
+
+        .timeline-container::after {
+            content: ' ';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -12.5px;
+            background-color: white;
+            border: 4px solid var(--brand-pink-dark);
+            top: 35px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-container.right::after {
+            left: -12.5px;
+        }
+
+        .content-box {
+            padding: 20px 30px;
+            background-color: white;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .content-box:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.2);
+        }
+
+        /* Disabled state for future events */
+        .timeline-container.is-disabled {
+            cursor: not-allowed;
+            pointer-events: auto; /* Allow click for custom message */
+        }
+
+        .timeline-container.is-disabled .content-box {
+            background-color: rgba(240, 240, 240, 0.9); /* Darker grey transparent */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transform: none; /* No hover effect */
+            opacity: 0.8; /* Slightly more opaque */
+        }
+
+        .timeline-container.is-disabled .content-box:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-container.is-disabled .content-box .title,
+        .timeline-container.is-disabled .content-box .subtitle,
+        .timeline-container.is-disabled .content-box p {
+            color: var(--brand-text-light); /* Make text lighter */
+        }
+
+
+        .content-box .title {
+            color: var(--brand-pink-dark);
+            font-weight: 700;
+        }
+
+        .content-box .subtitle {
+            color: var(--brand-text-light);
+            font-weight: 500;
+        }
+
+        .content-box .icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        /* Countdown text styling */
+        .countdown-text {
+            color: var(--brand-pink-dark);
+            font-weight: 700;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-container.left, .timeline-container.right {
+                left: 0%;
+            }
+
+            .timeline-container.left::after, .timeline-container.right::after {
+                left: 18px;
+            }
+        }
+        
+        .footer {
+            background-color: var(--brand-pink-light);
+            padding: 2rem 1.5rem 2rem;
+        }
+
+        /* Modal Styling */
+        .modal-content-custom {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 700px;
+            width: 90%;
+        }
+
+        .modal-card-head {
+            background-color: var(--brand-pink-light);
+            border-bottom: 1px solid var(--brand-pink);
+        }
+
+        .modal-card-title {
+            color: var(--brand-pink-dark);
+        }
+
+        .modal-close {
+            background-color: var(--brand-pink-dark);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-top: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Modal Animation */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal.is-active .modal-content-custom {
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+
+        .modal.is-active .modal-background {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Sticky Navbar */
+        .sticky-navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(255, 182, 193, 0.95); /* brand-pink with transparency */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 0; /* Start hidden */
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .sticky-navbar.is-visible {
+            height: auto;
+            opacity: 1;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .sticky-navbar .title {
+            font-family: 'Pacifico', cursive;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Gallery Section */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 150px; /* Fixed height for consistency */
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .gallery-item img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
+        }
+
+        /* Guestbook */
+        .guestbook-form .field:not(:last-child) {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sticky-navbar" id="stickyNavbar">
+        <p class="title">F 💖 S</p>
+    </nav>
+
+    <section class="hero is-primary is-medium">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <p class="subtitle is-size-4">
+                    Kisah Cinta
+                </p>
+                <p class="title is-size-1">
+                    Fazri & Septi
+                </p>
+                <p class="subtitle is-size-4">
+                    Dari Awal Hingga Selamanya
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Timeline Perjalanan Kami</h2>
+            <div class="timeline" id="timeline-events">
+                <!-- Timeline events will be dynamically populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <section class="section has-background-light">
+        <div class="container">
+            <h2 class="section-title">Kisah Kami dalam Angka</h2>
+            <div class="columns is-multiline is-centered has-text-centered">
+                <div class="column is-4-tablet is-3-desktop">
+                    <div class="box has-background-white-ter py-5">
+                        <p class="title is-2 has-text-danger-dark">1000+</p>
+                        <p class="subtitle is-6 has-text-grey-darker">Hari Bersama</p>
+                    </div>
+                </div>
+                <div class="column is-4-tablet is-3-desktop">
+                    <div class="box has-background-white-ter py-5">
+                        <p class="title is-2 has-text-danger-dark">50+</p>
+                        <p class="subtitle is-6 has-text-grey-darker">Kencan Tak Terlupakan</p>
+                    </div>
+                </div>
+                <div class="column is-4-tablet is-3-desktop">
+                    <div class="box has-background-white-ter py-5">
+                        <p class="title is-2 has-text-danger-dark">3</p>
+                        <p class="subtitle is-6 has-text-grey-darker">Kota yang Dikunjungi</p>
+                    </div>
+                </div>
+                <div class="column is-4-tablet is-3-desktop">
+                    <div class="box has-background-white-ter py-5">
+                        <p class="title is-2 has-text-danger-dark">∞</p>
+                        <p class="subtitle is-6 has-text-grey-darker">Cinta yang Tumbuh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Galeri Momen Indah</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+1" alt="Momen Indah 1" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+1+Detail" data-image-title="Momen Kebersamaan di Taman">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+2" alt="Momen Indah 2" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+2+Detail" data-image-title="Senja di Pantai">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+3" alt="Momen Indah 3" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+3+Detail" data-image-title="Tawa di Kafe Favorit">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+4" alt="Momen Indah 4" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+4+Detail" data-image-title="Perjalanan Jauh Bersama">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+5" alt="Momen Indah 5" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+5+Detail" data-image-title="Makan Malam Romantis">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+6" alt="Momen Indah 6" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+6+Detail" data-image-title="Di Bawah Bintang">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section has-background-light">
+        <div class="container">
+            <h2 class="section-title">Lokasi Acara</h2>
+            <div class="box has-text-centered">
+                <p class="title is-5 has-text-danger-dark">Gedung Serbaguna Bahagia</p>
+                <p class="subtitle is-6 has-text-grey-darker">Jl. Cinta Abadi No. 14, Kota Impian</p>
+                <p class="mb-4">Lokasi yang indah dan strategis untuk merayakan hari istimewa kami. Mudah dijangkau dan memiliki area parkir yang luas.</p>
+                <img src="https://placehold.co/600x300/FFB6C1/FFF?text=Peta+Lokasi" alt="Peta Lokasi" class="modal-image" style="cursor: default;">
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Buku Tamu & Harapan</h2>
+            <div class="box">
+                <p class="mb-4 has-text-centered">Silakan tinggalkan pesan dan doa terbaik Anda untuk kami!</p>
+                <div class="field">
+                    <label class="label">Nama</label>
+                    <div class="control">
+                        <input class="input" type="text" placeholder="Nama Anda">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Pesan & Doa</label>
+                    <div class="control">
+                        <textarea class="textarea" placeholder="Tuliskan pesan dan doa Anda di sini..."></textarea>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control has-text-centered">
+                        <button class="button is-primary" style="background-color: var(--brand-pink-dark); border-color: var(--brand-pink-dark);">Kirim Pesan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Dengan penuh cinta, <strong>Fazri & Septi</strong>.
+        </p>
+         <p style="font-size: 0.8rem; color: var(--brand-text-light);">
+            Terima kasih telah menjadi bagian dari cerita kami!
+        </p>
+      </div>
+    </footer>
+
+    <!-- Modal Structure -->
+    <div class="modal" id="eventModal">
+      <div class="modal-background"></div>
+      <div class="modal-content modal-content-custom">
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title" id="modalTitle"></p>
+            <button class="delete" aria-label="close" id="modalCloseButton"></button>
+          </header>
+          <section class="modal-card-body">
+            <p class="subtitle is-6" id="modalDate"></p>
+            <p id="modalDescription"></p>
+            <img src="" alt="Foto Momen" class="modal-image" id="modalImage">
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        const timelineData = [
+            {
+                id: 'jadian',
+                date: '6 Juni 2025',
+                fullDate: new Date('2025-06-06'),
+                title: 'Hari Jadian Kami',
+                icon: '💖',
+                shortDesc: 'Awal kisah cinta kami dimulai.',
+                longDesc: 'Pada tanggal 6 Juni 2025, di bawah langit senja yang indah, kami memutuskan untuk mengikat janji dan memulai perjalanan cinta ini bersama. Momen ini menjadi titik awal dari segala kebahagiaan yang akan kami rajut.',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Hari+Jadian'
+            },
+            {
+                id: 'seharian-bersama',
+                date: '8 Juni 2025',
+                fullDate: new Date('2025-06-08'),
+                title: 'Hari Pertama Kita Seharian Bersama',
+                icon: '😊',
+                shortDesc: 'Momen tak terlupakan seharian penuh.',
+                longDesc: 'Setelah hari jadian kami, 8 Juni 2025 menjadi hari pertama kami menghabiskan waktu seharian penuh bersama, menciptakan kenangan manis yang tak terlupakan.',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Seharian+Bersama'
+            },
+            {
+                id: 'pangandaran',
+                date: '5 September 2025',
+                fullDate: new Date('2025-09-05'),
+                title: 'Liburan ke Pantai Pangandaran',
+                icon: '🏖️',
+                shortDesc: 'Petualangan romantis di tepi pantai.',
+                longDesc: 'Pada tanggal 5 September 2025, kami berpetualang ke Pantai Pangandaran. Deburan ombak dan pasir putih menjadi saksi bisu kebahagiaan kami. Momen ini mempererat ikatan cinta kami.',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Pantai+Pangandaran'
+            },
+            {
+                id: 'lamaran',
+                date: '26 Maret 2026',
+                fullDate: new Date('2026-03-26'),
+                title: 'Momen Lamaran',
+                icon: '💍',
+                shortDesc: 'Janji untuk selamanya.',
+                longDesc: 'Dengan hati berdebar, ia berlutut dan menanyakan pertanyaan yang mengubah segalanya. "Maukah kau menikah denganku?". Dan dengan air mata bahagia, jawabanku adalah "Ya!".',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Lamaran'
+            },
+            {
+                id: 'persiapan-pernikahan',
+                date: '15 April 2026',
+                fullDate: new Date('2026-04-15'),
+                title: 'Persiapan Pernikahan Dimulai',
+                icon: '📝',
+                shortDesc: 'Mulai merencanakan hari besar.',
+                longDesc: 'Setelah lamaran, kami mulai sibuk merencanakan hari besar kami. Memilih gaun, venue, dan detail lainnya menjadi petualangan baru yang menyenangkan.',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Persiapan'
+            },
+            {
+                id: 'pertemuan-keluarga',
+                date: '5 September 2026',
+                fullDate: new Date('2026-09-05'),
+                title: 'Pertemuan Keluarga Besar',
+                icon: '👨‍👩‍👧‍👦',
+                shortDesc: 'Menyatukan dua keluarga.',
+                longDesc: 'Pertemuan keluarga besar menjadi momen hangat yang penuh keakraban. Kami semakin yakin bahwa kami akan menjadi satu keluarga besar yang bahagia.',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Keluarga'
+            },
+            {
+                id: 'pernikahan',
+                date: '20 September 2026',
+                fullDate: new Date('2026-09-20'),
+                title: 'Hari Pernikahan Kami',
+                icon: '👰🤵',
+                shortDesc: 'Awal dari kehidupan baru.',
+                longDesc: 'Akhirnya, hari yang kami nantikan tiba. Dengan restu dari orang tua dan doa dari para sahabat, kami mengikat janji suci pernikahan. Ini adalah awal dari babak baru dalam hidup kami.',
+                image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Pernikahan'
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const timelineEventsContainer = document.getElementById('timeline-events');
+            const eventModal = document.getElementById('eventModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDate = document.getElementById('modalDate');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalImage = document.getElementById('modalImage');
+            const modalCloseButton = document.getElementById('modalCloseButton');
+            const modalBackground = document.querySelector('.modal-background');
+            const stickyNavbar = document.getElementById('stickyNavbar');
+            const heroSection = document.querySelector('.hero');
+
+            // Get current date, set to start of day for comparison
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            timelineData.forEach((event, index) => {
+                const timelineContainer = document.createElement('div');
+                timelineContainer.classList.add('timeline-container');
+                timelineContainer.classList.add(index % 2 === 0 ? 'left' : 'right');
+                timelineContainer.dataset.eventId = event.id;
+
+                const isFutureEvent = event.fullDate.getTime() > today.getTime();
+                let countdownText = '';
+
+                if (isFutureEvent) {
+                    timelineContainer.classList.add('is-disabled');
+                    const diffTime = Math.abs(event.fullDate.getTime() - today.getTime());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    countdownText = `<p class="countdown-text">Masih ${diffDays} Hari lagi</p>`;
+                }
+
+                timelineContainer.innerHTML = `
+                    <div class="content-box">
+                        <div class="media">
+                            <div class="media-left">
+                                <span class="icon">${event.icon}</span>
+                            </div>
+                            <div class="media-content">
+                                <h3 class="title is-4">${event.title}</h3>
+                                <p class="subtitle is-6">${event.date}</p>
+                                <p>${event.shortDesc}</p>
+                                ${countdownText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                timelineEventsContainer.appendChild(timelineContainer);
+
+                timelineContainer.addEventListener('click', () => {
+                    if (isFutureEvent) {
+                        const diffTime = Math.abs(event.fullDate.getTime() - today.getTime());
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        modalTitle.textContent = 'Belum Saatnya!';
+                        modalDate.textContent = '';
+                        modalDescription.textContent = `nanti yaaa kita seperti ini... Masih ${diffDays} Hari lagi.`;
+                        modalImage.style.display = 'none'; // Hide image for disabled message
+                    } else {
+                        modalTitle.textContent = event.title;
+                        modalDate.textContent = event.date;
+                        modalDescription.textContent = event.longDesc;
+                        modalImage.src = event.image;
+                        modalImage.style.display = 'block'; // Show image for active events
+                    }
+                    eventModal.classList.add('is-active');
+                });
+            });
+
+            // Gallery image click handler
+            document.querySelectorAll('.gallery-item img').forEach(img => {
+                img.addEventListener('click', (e) => {
+                    modalTitle.textContent = e.target.dataset.imageTitle || 'Momen Indah';
+                    modalDate.textContent = ''; // Clear date for gallery images
+                    modalDescription.textContent = ''; // Clear description for gallery images
+                    modalImage.src = e.target.dataset.imageFull || e.target.src;
+                    modalImage.style.display = 'block'; // Ensure image is shown
+                    eventModal.classList.add('is-active');
+                });
+            });
+
+            modalCloseButton.addEventListener('click', () => {
+                eventModal.classList.remove('is-active');
+            });
+
+            modalBackground.addEventListener('click', () => {
+                eventModal.classList.remove('is-active');
+            });
+
+            // Sticky Navbar logic
+            window.addEventListener('scroll', () => {
+                const heroBottom = heroSection.getBoundingClientRect().bottom;
+                if (heroBottom <= 0) {
+                    stickyNavbar.classList.add('is-visible');
+                } else {
+                    stickyNavbar.classList.remove('is-visible');
+                }
+            });
+
+            // Guestbook button (no actual functionality)
+            const guestbookButton = document.querySelector('.guestbook-form button');
+            if (guestbookButton) {
+                guestbookButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Pesan dikirim (simulasi)');
+                    // Replace with custom modal for "Thank you" message if preferred
+                    alert('Terima kasih atas pesan dan doa Anda!'); 
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
+�
