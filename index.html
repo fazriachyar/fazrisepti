@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Chosen Palette: Sweet Pink Romance -->
     <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are disabled visually and functionally, providing a custom message upon interaction and a live countdown. A music play/pause button is added for background audio control. -->
@@ -39,13 +39,15 @@
         }
 
         .hero .title, .hero .subtitle {
-            font-family: 'Pacifico', cursive;
+            font-family: 'Quicksand', sans-serif; /* Changed from Pacifico */
+            font-weight: 700; /* Made it bold for distinction */
             color: #fff;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
 
         .section-title {
-            font-family: 'Pacifico', cursive;
+            font-family: 'Quicksand', sans-serif; /* Changed from Pacifico */
+            font-weight: 700; /* Made it bold for distinction */
             color: var(--brand-pink-dark);
             font-size: 2.5rem;
             text-align: center;
@@ -278,7 +280,8 @@
         }
 
         .sticky-navbar .title {
-            font-family: 'Pacifico', cursive;
+            font-family: 'Quicksand', sans-serif; /* Changed from Pacifico */
+            font-weight: 700; /* Made it bold for distinction */
             color: white;
             font-size: 1.5rem;
             margin-bottom: 0;
@@ -363,7 +366,7 @@
     </button>
     <audio id="backgroundMusic" loop autoplay>
         <!-- Ganti URL ini dengan URL file MP3 Anda -->
-        <source src="song.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
         <!-- Anda bisa mengganti URL di atas dengan URL MP3 Anda sendiri. -->
         Your browser does not support the audio element.
     </audio>
@@ -525,7 +528,7 @@
                 date: '6 Juni 2025',
                 fullDate: new Date('2025-06-06'),
                 title: 'Hari Jadian Kami',
-                icon: '💖',
+                icon: '�',
                 shortDesc: 'Awal kisah cinta kami dimulai.',
                 longDesc: 'Pada tanggal 6 Juni 2025, di bawah langit senja yang indah, kami memutuskan untuk mengikat janji dan memulai perjalanan cinta ini bersama. Momen ini menjadi titik awal dari segala kebahagiaan yang akan kami rajut.',
                 image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Hari+Jadian'
