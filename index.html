@@ -10,8 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Chosen Palette: Sweet Pink Romance -->
-    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are disabled visually and functionally, providing a custom message upon interaction and a live countdown. A music play/pause button is added for background audio control. -->
-    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed, display a custom message modal with a countdown when clicked, and show the countdown directly on the timeline card. Our Story in Numbers -> Goal: Summarize relationship statistics -> Presentation: Simple text blocks with bold numbers. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location -> Goal: Provide event venue details -> Presentation: Text block. Guestbook -> Goal: Allow user interaction -> Presentation: Simple form. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Music Player -> Goal: Provide background ambiance -> Presentation: Fixed button with play/pause icon. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The disabled dates with countdown add a playful anticipation and clearer visual feedback. The music button enhances the emotional experience. -->
+    <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. New sections for "Our Story in Numbers," "Gallery," "Location," and "Guestbook" are added to enrich the content and user experience. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are visually blurred and functionally disabled based on proximity to the current date, providing a custom message upon interaction and a live countdown. Location and Guestbook sections are also blurred and disabled until a specific future date. A music play/pause button is added for background audio control. -->
+    <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed with dynamic blur levels (heavy blur for >30 days, light blur for <=30 days), display a custom message modal with a countdown when clicked, and show the countdown directly on the timeline card. Our Story in Numbers -> Goal: Summarize relationship statistics -> Presentation: Simple text blocks with bold numbers. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location & Guestbook -> Goal: Provide event venue details and collect messages -> Presentation: Text blocks and form. Interaction: Blurred and disabled until a specific date (Feb 26, 2026), showing a custom message on click. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Music Player -> Goal: Provide background ambiance -> Presentation: Fixed button with play/pause icon. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The dynamic blur on disabled dates and sections with countdown adds a playful anticipation and clearer visual feedback based on proximity. The music button enhances the emotional experience. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
     <style>
@@ -39,15 +39,15 @@
         }
 
         .hero .title, .hero .subtitle {
-            font-family: 'Quicksand', sans-serif; /* Changed from Pacifico */
-            font-weight: 700; /* Made it bold for distinction */
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
             color: #fff;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
 
         .section-title {
-            font-family: 'Quicksand', sans-serif; /* Changed from Pacifico */
-            font-weight: 700; /* Made it bold for distinction */
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
             color: var(--brand-pink-dark);
             font-size: 2.5rem;
             text-align: center;
@@ -112,7 +112,7 @@
             position: relative;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
         }
         
         .content-box:hover {
@@ -127,10 +127,8 @@
         }
 
         .timeline-container.is-disabled .content-box {
-            background-color: rgba(240, 240, 240, 0.95); /* Darker grey transparent */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transform: none; /* No hover effect */
-            opacity: 0.8; /* Slightly more opaque */
         }
 
         .timeline-container.is-disabled .content-box:hover {
@@ -138,9 +136,24 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
+        /* Unreadable state (more than 30 days) */
+        .timeline-container.is-disabled-unreadable .content-box {
+            background-color: rgba(240, 240, 240, 0.98); /* Very opaque grey */
+            filter: blur(8px); /* Heavy blur */
+            opacity: 0.5; /* Overall fade */
+        }
+
+        /* Readable state (30 days or less) */
+        .timeline-container.is-disabled-readable .content-box {
+            background-color: rgba(240, 240, 240, 0.9); /* Slightly less opaque */
+            filter: blur(0.8px); /* Slight blur, still readable */
+            opacity: 0.9; /* Less faded */
+        }
+
         .timeline-container.is-disabled .content-box .title,
         .timeline-container.is-disabled .content-box .subtitle,
-        .timeline-container.is-disabled .content-box p {
+        .timeline-container.is-disabled .content-box p,
+        .timeline-container.is-disabled .content-box .countdown-text {
             color: var(--brand-text-light); /* Make text lighter */
         }
 
@@ -280,8 +293,8 @@
         }
 
         .sticky-navbar .title {
-            font-family: 'Quicksand', sans-serif; /* Changed from Pacifico */
-            font-weight: 700; /* Made it bold for distinction */
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
             color: white;
             font-size: 1.5rem;
             margin-bottom: 0;
@@ -329,24 +342,63 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem; /* Adjust font size for icon */
+            font-size: 1.5rem;
             border: none;
             cursor: pointer;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: background-color 0.3s ease, transform 0.2s ease;
-            padding-left: 3px; /* Adjust for triangle alignment */
+            padding-left: 3px;
         }
 
         .music-button:hover {
-            background-color: #FF4081; /* Slightly darker pink on hover */
+            background-color: #FF4081;
             transform: scale(1.05);
         }
 
         .music-button svg {
-            fill: currentColor; /* Use button's text color for SVG */
-            width: 1em; /* Make SVG size relative to font-size */
+            fill: currentColor;
+            width: 1em;
             height: 1em;
             vertical-align: middle;
+        }
+
+        /* Section blurring */
+        .section-blurred {
+            filter: blur(8px); /* Heavy blur */
+            pointer-events: none; /* Disable interaction */
+            opacity: 0.5; /* Overall fade */
+            transition: filter 0.5s ease, opacity 0.5s ease;
+            position: relative; /* Needed for overlay */
+        }
+
+        .section-blurred::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(240, 240, 240, 0.98); /* Very opaque grey overlay */
+            z-index: 5; /* Above content, below click handler if any */
+        }
+
+        .section-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10; /* Above the blur, for click handling */
+            cursor: not-allowed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--brand-pink-dark);
+            font-weight: 700;
+            font-size: 1.2rem;
+            padding: 20px;
+            pointer-events: auto; /* Allow click on overlay */
         }
     </style>
 </head>
@@ -454,7 +506,10 @@
         </div>
     </section>
 
-    <section class="section has-background-light">
+    <section class="section has-background-light" id="lokasiAcaraSection">
+        <div class="section-overlay" id="lokasiAcaraOverlay" style="display: none;">
+            <p>Informasi Lokasi akan tersedia setelah 26 Februari 2026</p>
+        </div>
         <div class="container">
             <h2 class="section-title">Lokasi Acara</h2>
             <div class="box has-text-centered">
@@ -466,7 +521,10 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="bukuTamuSection">
+        <div class="section-overlay" id="bukuTamuOverlay" style="display: none;">
+            <p>Buku Tamu akan dibuka setelah 26 Februari 2026</p>
+        </div>
         <div class="container">
             <h2 class="section-title">Buku Tamu & Harapan</h2>
             <div class="box">
@@ -588,7 +646,7 @@
                 date: '20 September 2026',
                 fullDate: new Date('2026-09-20'),
                 title: 'Hari Pernikahan Kami',
-                icon: '👰🤵',
+                icon: '👰�',
                 shortDesc: 'Awal dari kehidupan baru.',
                 longDesc: 'Akhirnya, hari yang kami nantikan tiba. Dengan restu dari orang tua dan doa dari para sahabat, kami mengikat janji suci pernikahan. Ini adalah awal dari babak baru dalam hidup kami.',
                 image: 'https://placehold.co/600x400/FFB6C1/FFF?text=Foto+Pernikahan'
@@ -611,9 +669,50 @@
             const playIcon = document.getElementById('playIcon');
             const pauseIcon = document.getElementById('pauseIcon');
 
-            // Get current date, set to start of day for comparison
+            const lokasiAcaraSection = document.getElementById('lokasiAcaraSection');
+            const lokasiAcaraOverlay = document.getElementById('lokasiAcaraOverlay');
+            const bukuTamuSection = document.getElementById('bukuTamuSection');
+            const bukuTamuOverlay = document.getElementById('bukuTamuOverlay');
+
+            const unlockDate = new Date('2026-02-26'); // Tanggal 26 Februari 2026
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+
+            // Function to handle blurring sections
+            const applySectionBlur = () => {
+                if (today.getTime() < unlockDate.getTime()) {
+                    lokasiAcaraSection.classList.add('section-blurred');
+                    lokasiAcaraOverlay.style.display = 'flex';
+                    bukuTamuSection.classList.add('section-blurred');
+                    bukuTamuOverlay.style.display = 'flex';
+                } else {
+                    lokasiAcaraSection.classList.remove('section-blurred');
+                    lokasiAcaraOverlay.style.display = 'none';
+                    bukuTamuSection.classList.remove('section-blurred');
+                    bukuTamuOverlay.style.display = 'none';
+                }
+            };
+
+            // Initial blur application
+            applySectionBlur();
+
+            // Add click listeners to overlays for custom messages
+            lokasiAcaraOverlay.addEventListener('click', () => {
+                modalTitle.textContent = 'Belum Saatnya!';
+                modalDate.textContent = '';
+                modalDescription.textContent = 'Informasi lokasi akan tersedia setelah 26 Februari 2026.';
+                modalImage.style.display = 'none';
+                eventModal.classList.add('is-active');
+            });
+
+            bukuTamuOverlay.addEventListener('click', () => {
+                modalTitle.textContent = 'Belum Saatnya!';
+                modalDate.textContent = '';
+                modalDescription.textContent = 'Buku Tamu akan dibuka setelah 26 Februari 2026.';
+                modalImage.style.display = 'none';
+                eventModal.classList.add('is-active');
+            });
+
 
             timelineData.forEach((event, index) => {
                 const timelineContainer = document.createElement('div');
@@ -626,8 +725,15 @@
 
                 if (isFutureEvent) {
                     timelineContainer.classList.add('is-disabled');
-                    const diffTime = Math.abs(event.fullDate.getTime() - today.getTime());
+                    const diffTime = event.fullDate.getTime() - today.getTime();
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays > 30) {
+                        timelineContainer.classList.add('is-disabled-unreadable');
+                    } else {
+                        timelineContainer.classList.add('is-disabled-readable');
+                    }
+
                     countdownHtml = `<p class="countdown-text">Masih ${diffDays} Hari lagi</p>`;
                 }
 
@@ -650,31 +756,30 @@
 
                 timelineContainer.addEventListener('click', () => {
                     if (isFutureEvent) {
-                        const diffTime = Math.abs(event.fullDate.getTime() - today.getTime());
+                        const diffTime = event.fullDate.getTime() - today.getTime();
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         modalTitle.textContent = 'Belum Saatnya!';
                         modalDate.textContent = '';
                         modalDescription.textContent = `nanti yaaa kita seperti ini... Masih ${diffDays} Hari lagi.`;
-                        modalImage.style.display = 'none'; // Hide image for disabled message
+                        modalImage.style.display = 'none';
                     } else {
                         modalTitle.textContent = event.title;
                         modalDate.textContent = event.date;
                         modalDescription.textContent = event.longDesc;
                         modalImage.src = event.image;
-                        modalImage.style.display = 'block'; // Show image for active events
+                        modalImage.style.display = 'block';
                     }
                     eventModal.classList.add('is-active');
                 });
             });
 
-            // Gallery image click handler
             document.querySelectorAll('.gallery-item img').forEach(img => {
                 img.addEventListener('click', (e) => {
                     modalTitle.textContent = e.target.dataset.imageTitle || 'Momen Indah';
-                    modalDate.textContent = ''; // Clear date for gallery images
-                    modalDescription.textContent = ''; // Clear description for gallery images
+                    modalDate.textContent = '';
+                    modalDescription.textContent = '';
                     modalImage.src = e.target.dataset.imageFull || e.target.src;
-                    modalImage.style.display = 'block'; // Ensure image is shown
+                    modalImage.style.display = 'block';
                     eventModal.classList.add('is-active');
                 });
             });
@@ -687,7 +792,6 @@
                 eventModal.classList.remove('is-active');
             });
 
-            // Sticky Navbar logic
             window.addEventListener('scroll', () => {
                 const heroBottom = heroSection.getBoundingClientRect().bottom;
                 if (heroBottom <= 0) {
@@ -697,7 +801,6 @@
                 }
             });
 
-            // Music Play/Pause Toggle
             musicToggleButton.addEventListener('click', () => {
                 if (backgroundMusic.paused) {
                     backgroundMusic.play();
@@ -710,7 +813,6 @@
                 }
             });
 
-            // Attempt to autoplay and handle potential browser restrictions
             backgroundMusic.play().then(() => {
                 playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
@@ -720,13 +822,11 @@
                 pauseIcon.style.display = 'none';
             });
 
-            // Guestbook button (no actual functionality)
             const guestbookButton = document.querySelector('.guestbook-form button');
             if (guestbookButton) {
                 guestbookButton.addEventListener('click', (e) => {
                     e.preventDefault();
                     console.log('Pesan dikirim (simulasi)');
-                    // Replace with custom modal for "Thank you" message if preferred
                     alert('Terima kasih atas pesan dan doa Anda!'); 
                 });
             }
