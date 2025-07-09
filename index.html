@@ -3,11 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline Kisah Cinta | Fazri & Septi</title>
+    <title>Fazri 💖 Septi</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase (will be populated on DOMContentLoaded)
+        window.firebaseApp = null;
+        window.db = null;
+        window.auth = null;
+        window.currentUserId = null;
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use __app_id
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is missing or empty.");
+                    return;
+                }
+
+                window.firebaseApp = initializeApp(firebaseConfig);
+                window.db = getFirestore(window.firebaseApp);
+                window.auth = getAuth(window.firebaseApp);
+
+                // Sign in anonymously or with custom token
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(window.auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(window.auth);
+                }
+
+                onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        window.currentUserId = user.uid;
+                        console.log("Firebase initialized and user authenticated:", window.currentUserId);
+                        document.getElementById('userIdDisplay').textContent = `User ID: ${window.currentUserId}`;
+                        // loadGuestbookMessages(); // Removed as per user request
+                        setupGuestbookForm(); // Setup form after auth
+                    } else {
+                        console.log("No user is signed in.");
+                        document.getElementById('userIdDisplay').textContent = 'User ID: N/A (Not Signed In)';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                document.getElementById('userIdDisplay').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
     
     <!-- Chosen Palette: Sweet Pink Romance -->
     <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. A new "Inspirational Quotes" section replaces the "Our Story in Numbers" section, displaying dynamically changing quotes. Sections for "Gallery," "Location," and "Guestbook" enrich the content. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are visually blurred and functionally disabled based on proximity to the current date, providing a custom message upon interaction and a live countdown. Location and Guestbook sections are also blurred and disabled until a specific future date. A music play/pause button is added for background audio control. -->
@@ -500,6 +552,83 @@
                 opacity: 0;
             }
         }
+
+        /* Custom Message Box */
+        .custom-message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            text-align: center;
+            display: none; /* Hidden by default */
+            animation: fadeInScale 0.3s ease-out forwards;
+            max-width: 80%;
+        }
+
+        .custom-message-box.is-active {
+            display: block;
+        }
+
+        .custom-message-box .message-content {
+            font-size: 1.1rem;
+            color: var(--brand-text-dark);
+            margin-bottom: 15px;
+        }
+
+        .custom-message-box .close-button {
+            background-color: var(--brand-pink-dark);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-message-box .close-button:hover {
+            background-color: #FF4081;
+        }
+
+        /* Guestbook Messages Display (Removed, but keeping styles for reference if needed later) */
+        /*
+        .guestbook-messages {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--brand-pink-light);
+            border-radius: 8px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .guestbook-message-item {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .guestbook-message-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .guestbook-message-item strong {
+            color: var(--brand-pink-dark);
+        }
+
+        .guestbook-message-item .timestamp {
+            font-size: 0.8rem;
+            color: var(--brand-text-light);
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+        */
     </style>
 </head>
 <body>
@@ -534,10 +663,13 @@
         <div class="hero-body">
             <div class="container has-text-centered">
                 <p class="subtitle is-size-4">
-                    Sedikit Cerita Tentang
+                    Perjalanan Cinta
                 </p>
                 <p class="title is-size-1">
                     Fazri & Septi
+                </p>
+                <p class="subtitle is-size-4">
+                    Merajut Kisah, Mengukir Janji
                 </p>
             </div>
         </div>
@@ -564,7 +696,7 @@
 
     <section class="section">
         <div class="container">
-            <h2 class="section-title">Our Gallery</h2>
+            <h2 class="section-title">Galeri Momen Indah</h2>
             <div class="gallery-grid">
                 <div class="gallery-item">
                     <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+1" alt="Momen Indah 1" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+1+Detail" data-image-title="Momen Kebersamaan di Taman">
@@ -590,7 +722,7 @@
 
     <section class="section has-background-light" id="lokasiAcaraSection">
       <div class="section-overlay" id="lokasiAcaraOverlay" style="display: none;">
-        <p>Coming Soon...</p>
+        <p>Tunggu bentaran ya, kalo udah waktunya pasti keliatan.</p>
       </div>
       <div class="container">
         <h2 class="section-title">Lokasi Acara</h2>
@@ -618,29 +750,31 @@
 
     <section class="section" id="bukuTamuSection">
         <div class="section-overlay" id="bukuTamuOverlay" style="display: none;">
-            <p>Coming Soon...</p>
+            <!-- Overlay content for guestbook, now hidden by default -->
+            <p>Tunggu aja, nanti juga keliatan kok.</p>
         </div>
         <div class="container">
-            <h2 class="section-title">Buku Tamu & Harapan</h2>
+            <h2 class="section-title">Doa & Harapan</h2>
             <div class="box">
                 <p class="mb-4 has-text-centered">Silakan tinggalkan pesan dan doa terbaik Anda untuk kami!</p>
                 <div class="field">
                     <label class="label">Nama</label>
                     <div class="control">
-                        <input class="input" type="text" placeholder="Nama Anda">
+                        <input class="input" type="text" id="guestName" placeholder="Nama Anda">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Pesan & Doa</label>
                     <div class="control">
-                        <textarea class="textarea" placeholder="Tuliskan pesan dan doa Anda di sini..."></textarea>
+                        <textarea class="textarea" id="guestMessage" placeholder="Tuliskan pesan dan doa Anda di sini..."></textarea>
                     </div>
                 </div>
                 <div class="field">
                     <div class="control has-text-centered">
-                        <button class="button is-primary" style="background-color: var(--brand-pink-dark); border-color: var(--brand-pink-dark);">Kirim Pesan</button>
+                        <button class="button is-primary" id="submitGuestbook" style="background-color: var(--brand-pink-dark); border-color: var(--brand-pink-dark);">Kirim Pesan</button>
                     </div>
                 </div>
+                <!-- Guestbook messages display removed as per user request -->
             </div>
         </div>
     </section>
@@ -653,10 +787,11 @@
          <p style="font-size: 0.8rem; color: var(--brand-text-light);">
             Terima kasih telah menjadi bagian dari cerita kami!
         </p>
+        <p id="userIdDisplay" style="font-size: 0.7rem; color: var(--brand-text-light;"></p>
       </div>
     </footer>
 
-    <!-- Modal Structure -->
+    <!-- Modal Structure for Events -->
     <div class="modal" id="eventModal">
       <div class="modal-background"></div>
       <div class="modal-content modal-content-custom">
@@ -674,7 +809,25 @@
       </div>
     </div>
 
-    <script>
+    <!-- Custom Message Box for Guestbook Feedback -->
+    <div class="custom-message-box" id="customMessageBox">
+        <p class="message-content" id="messageBoxContent"></p>
+        <button class="close-button" id="messageBoxCloseButton">Tutup</button>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase (will be populated on DOMContentLoaded)
+        let firebaseApp = null;
+        let db = null;
+        let auth = null;
+        let currentUserId = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use __app_id
+
         const timelineData = [
             {
                 id: 'jadian',
@@ -773,7 +926,7 @@
             { text: "Kamu tahu kamu sedang jatuh cinta ketika kamu tidak bisa tidur karena kenyataan akhirnya lebih baik dari mimpimu.", author: "Dr. Seuss" },
             { text: "Hal-hal terbaik dan terindah di dunia ini tidak dapat dilihat atau didengar, tetapi harus dirasakan dengan hati.", author: "Helen Keller" },
             { text: "Cinta adalah saat kebahagiaan orang lain lebih penting daripada kebahagiaanmu sendiri.", author: "H. Jackson Brown, Jr." },
-            { text: "Jauhkan cinta di hatimu. Kehidupan tanpanya seperti taman tanpa matahari saat bunga-bunganya mati.", author: "Oscar Wilde" },
+            { text: "Jauhkan cinta di hatimu. Kehidupan tanpanya seperti taman tanpa matahari saat bunga-bunga mati.", author: "Oscar Wilde" },
             { text: "Hatiku sempurna karena kamu ada di dalamnya.", author: "Anonim" },
             { text: "Kamu adalah pikiranku yang pertama di pagi hari dan yang terakhir di malam hari.", author: "Anonim" },
             { text: "Bersamamu adalah tempat favoritku untuk berada.", author: "Anonim" },
@@ -806,7 +959,7 @@
             { text: "Cinta adalah benang emas yang mengikat hati seluruh dunia.", author: "John Evelyn" },
             { text: "Aku masih jatuh cinta padamu setiap hari.", author: "Anonim" },
             { text: "Cinta adalah kehidupan. Jika kamu merindukan cinta, kamu merindukan kehidupan.", author: "Leo Buscaglia" },
-            { text: "Selamanya adalah waktu yang lama, tapi aku tidak keberatan menghabiskannya di sisimu.", author: "Anonim" },
+            { text: "Selamanya adalah waktu yang lama, tapi aku tidak keberatan menghabiskannya di sisumu.", author: "Anonim" },
             { text: "Kamu adalah keajaiban yang selalu aku harapkan.", author: "Anonim" },
             { text: "Jiwaku dan jiwamu selamanya terikat.", author: "N.R. Hart" },
             { text: "Aku mencintaimu karena seluruh alam semesta berkonspirasi untuk membantuku menemukanmu.", author: "Paulo Coelho" },
@@ -875,8 +1028,69 @@
             }, 500); // Half of fade-out duration for smooth transition
         }
 
+        // Function to show custom message box
+        function showMessageBox(message, type = 'success') {
+            const messageBox = document.getElementById('customMessageBox');
+            const messageContent = document.getElementById('messageBoxContent');
+            messageContent.textContent = message;
+            messageBox.classList.remove('is-active'); // Reset animation
+            void messageBox.offsetWidth; // Trigger reflow
+            messageBox.classList.add('is-active');
+            // Optional: Add class for success/error styling
+            messageBox.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+            messageContent.style.color = type === 'success' ? '#155724' : '#721c24';
 
-        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                messageBox.classList.remove('is-active');
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // Function to close custom message box
+        function closeMessageBox() {
+            document.getElementById('customMessageBox').classList.remove('is-active');
+        }
+
+        // Function to setup guestbook form submission
+        async function setupGuestbookForm() {
+            const submitGuestbookButton = document.getElementById('submitGuestbook');
+            const guestNameInput = document.getElementById('guestName');
+            const guestMessageInput = document.getElementById('guestMessage');
+
+            submitGuestbookButton.addEventListener('click', async () => {
+                if (!db || !currentUserId) { // Use local db and currentUserId
+                    showMessageBox('Sistem belum siap. Silakan coba lagi sebentar.', 'error');
+                    return;
+                }
+
+                const name = guestNameInput.value.trim();
+                const message = guestMessageInput.value.trim();
+
+                if (name === '' || message === '') {
+                    showMessageBox('Nama dan pesan tidak boleh kosong.', 'error');
+                    return;
+                }
+
+                try {
+                    // Define the collection path for private data
+                    const collectionPath = `artifacts/${appId}/users/${currentUserId}/guestbook_messages`;
+                    await addDoc(collection(db, collectionPath), {
+                        name: name,
+                        message: message,
+                        timestamp: new Date(), // Use server timestamp for consistency
+                        userId: currentUserId // Store user ID for reference
+                    });
+                    showMessageBox('Pesan Anda berhasil dikirim!', 'success');
+                    guestNameInput.value = '';
+                    guestMessageInput.value = '';
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    showMessageBox(`Gagal mengirim pesan: ${e.message}`, 'error');
+                }
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
             const timelineEventsContainer = document.getElementById('timeline-events');
             const eventModal = document.getElementById('eventModal');
             const modalTitle = document.getElementById('modalTitle');
@@ -886,11 +1100,11 @@
             const modalCloseButton = document.getElementById('modalCloseButton');
             const modalBackground = document.querySelector('.modal-background');
             const stickyNavbar = document.getElementById('stickyNavbar');
-            const stickyNavbarTitle = document.getElementById('stickyNavbarTitle');
+            const stickyNavbarTitle = document.getElementById('stickyNavbarTitle'); // Get the title element
             const heroSection = document.querySelector('.hero');
             const backgroundMusic = document.getElementById('backgroundMusic');
             const musicToggleButton = document.getElementById('musicToggleButton');
-            const nextSongButton = document.getElementById('nextSongButton');
+            const nextSongButton = document.getElementById('nextSongButton'); // Get the next song button
             const playIcon = document.getElementById('playIcon');
             const pauseIcon = document.getElementById('pauseIcon');
 
@@ -922,17 +1136,18 @@
             }
 
             const applySectionBlur = () => {
+                // Lokasi Acara still has time-based blur
                 if (today.getTime() < unlockDate.getTime()) {
                     lokasiAcaraSection.classList.add('section-blurred');
                     lokasiAcaraOverlay.style.display = 'flex';
-                    bukuTamuSection.classList.add('section-blurred');
-                    bukuTamuOverlay.style.display = 'flex';
                 } else {
                     lokasiAcaraSection.classList.remove('section-blurred');
                     lokasiAcaraOverlay.style.display = 'none';
-                    bukuTamuSection.classList.remove('section-blurred');
-                    bukuTamuOverlay.style.display = 'none';
                 }
+
+                // Buku Tamu is now always enabled
+                bukuTamuSection.classList.remove('section-blurred');
+                bukuTamuOverlay.style.display = 'none';
             };
 
             applySectionBlur();
@@ -945,12 +1160,15 @@
                 eventModal.classList.add('is-active', 'is-coming-soon');
             });
 
+            // The bukuTamuOverlay click handler is no longer strictly needed as it's always hidden,
+            // but keeping it won't cause issues.
             bukuTamuOverlay.addEventListener('click', () => {
-                modalTitle.textContent = 'Belum Saatnya!';
+                // This block will practically never be reached now as the overlay is display: none
+                modalTitle.textContent = 'Buku Tamu Aktif!'; // Changed message for clarity
                 modalDate.style.display = 'none';
-                modalDescription.textContent = 'Tunggu aja, nanti juga keliatan kok.';
+                modalDescription.textContent = 'Silakan isi pesan Anda di bawah.';
                 modalImage.style.display = 'none';
-                eventModal.classList.add('is-active', 'is-coming-soon');
+                eventModal.classList.add('is-active', 'is-coming-soon'); // Re-using coming-soon class for styling
             });
 
 
@@ -1005,7 +1223,7 @@
                         modalDate.style.display = 'none';
                         modalDescription.textContent = `Masih ${diffDays} Hari lagi.`;
                         modalImage.style.display = 'none';
-                        eventModal.classList.add('is-coming-soon');
+                        eventModal.classList.add('is-active', 'is-coming-soon');
                     } else {
                         modalTitle.textContent = event.title;
                         modalDate.textContent = event.date;
@@ -1036,6 +1254,10 @@
             modalBackground.addEventListener('click', () => {
                 eventModal.classList.remove('is-active');
             });
+
+            // Close custom message box
+            document.getElementById('messageBoxCloseButton').addEventListener('click', closeMessageBox);
+
 
             window.addEventListener('scroll', () => {
                 const heroBottom = heroSection.getBoundingClientRect().bottom;
@@ -1076,17 +1298,10 @@
                 });
             }
 
+
             // Automatically play next song when current song ends
             backgroundMusic.addEventListener('ended', playNextSong);
 
-            const guestbookButton = document.querySelector('.guestbook-form button');
-            if (guestbookButton) {
-                guestbookButton.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    console.log('Pesan dikirim (simulasi)');
-                    alert('Terima kasih atas pesan dan doa Anda!'); 
-                });
-            }
 
             // Initialize and start quotes rotation
             displayQuote();
@@ -1118,6 +1333,42 @@
                     });
                 }
             });
+
+            // Firebase Initialization and Auth State Listener
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is missing or empty.");
+                    return;
+                }
+
+                firebaseApp = initializeApp(firebaseConfig);
+                db = getFirestore(firebaseApp);
+                auth = getAuth(firebaseApp);
+
+                // Sign in anonymously or with custom token
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        console.log("Firebase initialized and user authenticated:", currentUserId);
+                        document.getElementById('userIdDisplay').textContent = `User ID: ${currentUserId}`;
+                        setupGuestbookForm(); // Setup form after auth
+                    } else {
+                        console.log("No user is signed in.");
+                        document.getElementById('userIdDisplay').textContent = 'User ID: N/A (Not Signed In)';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                document.getElementById('userIdDisplay').textContent = `Error: ${error.message}`;
+            }
         });
     </script>
 
