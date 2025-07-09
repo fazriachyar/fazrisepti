@@ -9,58 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global variables for Firebase (will be populated on DOMContentLoaded)
-        window.firebaseApp = null;
-        window.db = null;
-        window.auth = null;
-        window.currentUserId = null;
-        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use __app_id
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-                if (Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase config is missing or empty.");
-                    return;
-                }
-
-                window.firebaseApp = initializeApp(firebaseConfig);
-                window.db = getFirestore(window.firebaseApp);
-                window.auth = getAuth(window.firebaseApp);
-
-                // Sign in anonymously or with custom token
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(window.auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(window.auth);
-                }
-
-                onAuthStateChanged(window.auth, (user) => {
-                    if (user) {
-                        window.currentUserId = user.uid;
-                        console.log("Firebase initialized and user authenticated:", window.currentUserId);
-                        document.getElementById('userIdDisplay').textContent = `User ID: ${window.currentUserId}`;
-                        // loadGuestbookMessages(); // Removed as per user request
-                        setupGuestbookForm(); // Setup form after auth
-                    } else {
-                        console.log("No user is signed in.");
-                        document.getElementById('userIdDisplay').textContent = 'User ID: N/A (Not Signed In)';
-                    }
-                });
-
-            } catch (error) {
-                console.error("Error initializing Firebase or authenticating:", error);
-                document.getElementById('userIdDisplay').textContent = `Error: ${error.message}`;
-            }
-        });
-    </script>
-    
     <!-- Chosen Palette: Sweet Pink Romance -->
     <!-- Application Structure Plan: A single-page application centered around a vertical timeline of the couple's journey. It starts with a welcoming hero section, followed by the interactive timeline. A new "Inspirational Quotes" section replaces the "Our Story in Numbers" section, displaying dynamically changing quotes. Sections for "Gallery," "Location," and "Guestbook" enrich the content. A sticky navigation bar appears on scroll for quick access to the couple's initials. The structure prioritizes a narrative flow while offering interactive elements (clickable timeline items and gallery images opening modals) to deepen engagement. Future dates are visually blurred and functionally disabled based on proximity to the current date, providing a custom message upon interaction and a live countdown. Location and Guestbook sections are also blurred and disabled until a specific future date. A music play/pause button is added for background audio control. -->
     <!-- Visualization & Content Choices: Relationship Milestones -> Goal: Inform users about key dates and events -> Presentation: Custom vertical timeline with clickable boxes. Interaction: Clicking opens a modal with detailed text and a placeholder image. Future events are visually dimmed with dynamic blur levels (heavy blur for >30 days, light blur for <=30 days), and display a *distinct* "Coming Soon" modal with a countdown. Inspirational Quotes -> Goal: Provide engaging, dynamic content relevant to love/relationships -> Presentation: Text quotes changing automatically with soft fade animations. Gallery -> Goal: Showcase moments -> Presentation: Grid of clickable placeholder images. Interaction: Clicking opens a modal with the image. Location & Guestbook -> Goal: Provide event venue details and collect messages -> Presentation: Text blocks and form. Interaction: Blurred and disabled until a specific date (Feb 26, 2026), showing a custom message on click. Sticky Navbar -> Goal: Enhance navigation -> Presentation: Fixed header with initials. Music Player -> Goal: Provide background ambiance -> Presentation: Fixed button with play/pause icon. Justification: These choices provide a rich, interactive narrative experience while maintaining the cute, pinky theme and adhering to the no SVG/Mermaid constraint. The dynamic blur on disabled dates and sections with countdown adds a playful anticipation and clearer visual feedback based on proximity. The distinct "Coming Soon" modal improves user clarity. The music button and dynamic quotes enhance the emotional and interactive experience. -->
@@ -663,10 +611,13 @@
         <div class="hero-body">
             <div class="container has-text-centered">
                 <p class="subtitle is-size-4">
-                    Cerita Tentang
+                    Perjalanan Cinta
                 </p>
                 <p class="title is-size-1">
                     Fazri & Septi
+                </p>
+                <p class="subtitle is-size-4">
+                    Merajut Kisah, Mengukir Janji
                 </p>
             </div>
         </div>
@@ -693,7 +644,7 @@
 
     <section class="section">
         <div class="container">
-            <h2 class="section-title">Galeri Kami</h2>
+            <h2 class="section-title">Galeri Momen Indah</h2>
             <div class="gallery-grid">
                 <div class="gallery-item">
                     <img src="https://placehold.co/300x200/FFB6C1/FFF?text=Momen+1" alt="Momen Indah 1" data-image-full="https://placehold.co/800x600/FFB6C1/FFF?text=Momen+Indah+1+Detail" data-image-title="Momen Kebersamaan di Taman">
@@ -784,7 +735,7 @@
          <p style="font-size: 0.8rem; color: var(--brand-text-light);">
             Terima kasih telah menjadi bagian dari cerita kami!
         </p>
-        <p id="userIdDisplay" style="font-size: 0.7rem; color: var(--brand-text-light;"></p>
+        <p id="userIdDisplay" style="font-size: 0.7rem; color: var(--brand-text-light);"></p>
       </div>
     </footer>
 
@@ -815,15 +766,35 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global variables for Firebase (will be populated on DOMContentLoaded)
+        // Global variables for Firebase
         let firebaseApp = null;
         let db = null;
         let auth = null;
         let currentUserId = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use __app_id
+        // appId will be derived from firebaseConfig.projectId for Cloudflare Pages
+        let appId = 'default-app-id'; 
+
+        // PASTE YOUR FIREBASE CONFIG OBJECT HERE
+        // Example:
+        const firebaseConfig = {
+        apiKey: "AIzaSyAzUo9TowBWAz_pJK5elFt9ObCIeRLOZrg",
+        authDomain: "fazriachyar-41fcd.firebaseapp.com",
+        projectId: "fazriachyar-41fcd",
+        storageBucket: "fazriachyar-41fcd.firebasestorage.app",
+        messagingSenderId: "206469138394",
+        appId: "1:206469138394:web:c7ca41f70b7c9077a262e3",
+        measurementId: "G-ZYE1DV25X1"
+        };
+        // END PASTE YOUR FIREBASE CONFIG OBJECT HERE
+
+        // Set appId from firebaseConfig.projectId
+        if (firebaseConfig.projectId) {
+            appId = firebaseConfig.projectId;
+        }
+
 
         const timelineData = [
             {
@@ -1069,6 +1040,9 @@
 
                 try {
                     // Define the collection path for private data
+                    // For Cloudflare Pages, each anonymous user will have their own userId
+                    // So, this ensures that only the user who sent the message can see it in their own Firebase Console if they know their UID.
+                    // If you, as the owner, want to see ALL messages, you'd need to implement a login for yourself.
                     const collectionPath = `artifacts/${appId}/users/${currentUserId}/guestbook_messages`;
                     await addDoc(collection(db, collectionPath), {
                         name: name,
@@ -1333,23 +1307,14 @@
 
             // Firebase Initialization and Auth State Listener
             try {
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-                if (Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase config is missing or empty.");
-                    return;
-                }
-
+                // Initialize Firebase with your directly provided config
                 firebaseApp = initializeApp(firebaseConfig);
                 db = getFirestore(firebaseApp);
                 auth = getAuth(firebaseApp);
 
-                // Sign in anonymously or with custom token
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
+                // For Cloudflare Pages, we sign in anonymously as __initial_auth_token is not available
+                await signInAnonymously(auth);
+                
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         currentUserId = user.uid;
